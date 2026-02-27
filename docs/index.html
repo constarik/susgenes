@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.16.4</title>
+<title>sus.genes — MVP v0.16.5</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -307,7 +307,7 @@
   <div class="detail" id="winDetail"></div>
 </div>
 
-<div class="ver">v0.16.4</div>
+<div class="ver">v0.16.5</div>
 
 </div><!-- /phone-frame -->
 
@@ -724,7 +724,7 @@ function updateBetsRow(){
     const guessHtml=b.guess.map((v,i)=>{
       return `<span style="display:inline-block;background:#111;border-radius:3px;padding:0 3px;margin:0 1px;color:${CHIP_GENE[i]};font-weight:900;font-size:13px;line-height:16px">${v?'+':'−'}</span>`;
     }).join('');
-    let html=`${e?e.emoji:''} <span style="color:${e?e.color:'#888'}">${e?e.name:'?'}</span> ${guessHtml} ⭐${b.amount}`;
+    let html=`${e?e.emoji:''} <span style="color:${e?e.color:'#888'}">${e?e.name[0]:'?'}</span> ${guessHtml} ⭐${b.amount}`;
     if(revealed&&e){
       const correct=e.geno.reduce((s,v,i)=>s+(v===b.guess[i]?1:0),0);
       if(correct===3){chip.classList.add('win');html+=` → <b>+${b.payout}</b>`;}
