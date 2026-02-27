@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.15</title>
+<title>sus.genes — MVP v0.15.1</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -126,8 +126,8 @@
 
   /* Bets row */
   .bets-row {
-    display: flex; gap: 4px; padding: 4px 0; flex-wrap: wrap;
-    width: 100%;  justify-content: center;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px 0;
+    width: 100%;
   }
   .b-chip {
     padding: 3px 8px; border-radius: 10px;
