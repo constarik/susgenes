@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.16</title>
+<title>sus.genes — MVP v0.16.1</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -307,7 +307,7 @@
   <div class="detail" id="winDetail"></div>
 </div>
 
-<div class="ver">v0.16</div>
+<div class="ver">v0.16.1</div>
 
 </div><!-- /phone-frame -->
 
@@ -865,18 +865,27 @@ function doReveal(){
       else{b.payout=0;}
     }
   }
+  // Round fee (R2+, first round free)
+  const ROUND_FEE=100;
+  const hasFee=roundNum>=2;
+  if(hasFee){
+    balance-=ROUND_FEE;
+    if(balance<0)balance=0;
+  }
   const banner=document.getElementById('winBanner');
-  const net=totalWin-totalBet;
+  const net=totalWin-totalBet-(hasFee?ROUND_FEE:0);
   banner.classList.add('show');
   if(net>=0){
     banner.classList.remove('negative');banner.classList.add('positive');
     document.getElementById('winText').textContent=`🎯 Won ⭐${totalWin}`;
-    document.getElementById('winDetail').textContent=
+    document.getElementById('winDetail').textContent=hasFee?
+      `Bet ⭐${totalBet} → Return ⭐${totalWin} − Fee ⭐${ROUND_FEE} (${net>=0?'+':''}${net} net)`:
       `Bet ⭐${totalBet} → Return ⭐${totalWin} (${net>=0?'+':''}${net} net)`;
   } else {
     banner.classList.remove('positive');banner.classList.add('negative');
     document.getElementById('winText').textContent=`Lost ⭐${-net}`;
-    document.getElementById('winDetail').textContent=
+    document.getElementById('winDetail').textContent=hasFee?
+      `Bet ⭐${totalBet} → Return ⭐${totalWin} − Fee ⭐${ROUND_FEE}`:
       `Bet ⭐${totalBet} → Return ⭐${totalWin}`;
   }
   // End sound
@@ -916,7 +925,10 @@ document.getElementById('btnAuto').onclick=function(){
       document.getElementById('btnAuto').classList.remove('active');doReveal();}
   },TICK_DURATION);this.textContent='⏸ Stop';this.classList.add('active');}
 };
-document.getElementById('btnNew').onclick=newRound;
+document.getElementById('btnNew').onclick=function(){
+  if(roundNum>=1 && balance<100){alert('Need ⭐100 to play next round. Balance: ⭐'+balance);return;}
+  newRound();
+};
 document.getElementById('btnTheme').onclick=function(){
   themeIdx=(themeIdx+1)%THEMES.length;
   applyTheme();
@@ -943,11 +955,6 @@ function newRound(){
   if(autoInterval){clearInterval(autoInterval);autoInterval=null;
     document.getElementById('btnAuto').textContent='▶▶ Auto';
     document.getElementById('btnAuto').classList.remove('active');}
-  const BUYIN=100;
-  if(roundNum>=1){
-    if(balance<BUYIN){alert('Need ⭐'+BUYIN+' to play. Balance: ⭐'+balance);return;}
-    balance-=BUYIN;
-  }
   roundNum++;
   tick=0;revealed=false;bets=[];selectedEnt=null;betGuess=[null,null,null];
   food=[];effects=[];entities=[];lastTickTime=performance.now();
