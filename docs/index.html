@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.16.3</title>
+<title>sus.genes — MVP v0.16.4</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -307,7 +307,7 @@
   <div class="detail" id="winDetail"></div>
 </div>
 
-<div class="ver">v0.16.3</div>
+<div class="ver">v0.16.4</div>
 
 </div><!-- /phone-frame -->
 
@@ -866,13 +866,12 @@ function doReveal(){
       else{b.payout=0;}
     }
   }
-  // Round fee (R2+, first round free)
-  const ROUND_FEE=100;
-  const hasFee=roundNum>=2;
-  if(hasFee){
-    balance-=ROUND_FEE;
-    if(balance<0)balance=0;
-  }
+  // Round fee (disabled for now, placeholder for Telegram Stars)
+  // const ROUND_FEE=100;
+  // const hasFee=roundNum>=2;
+  // if(hasFee){ balance-=ROUND_FEE; if(balance<0)balance=0; }
+  const hasFee=false;
+  const ROUND_FEE=0;
   const realChange=balance-(balBefore+totalBet);
   const banner=document.getElementById('winBanner');
   banner.classList.add('show');
