@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.15.2</title>
+<title>sus.genes — MVP v0.16</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -307,7 +307,7 @@
   <div class="detail" id="winDetail"></div>
 </div>
 
-<div class="ver">v0.15.2</div>
+<div class="ver">v0.16</div>
 
 </div><!-- /phone-frame -->
 
@@ -943,6 +943,11 @@ function newRound(){
   if(autoInterval){clearInterval(autoInterval);autoInterval=null;
     document.getElementById('btnAuto').textContent='▶▶ Auto';
     document.getElementById('btnAuto').classList.remove('active');}
+  const BUYIN=100;
+  if(roundNum>=1){
+    if(balance<BUYIN){alert('Need ⭐'+BUYIN+' to play. Balance: ⭐'+balance);return;}
+    balance-=BUYIN;
+  }
   roundNum++;
   tick=0;revealed=false;bets=[];selectedEnt=null;betGuess=[null,null,null];
   food=[];effects=[];entities=[];lastTickTime=performance.now();
