@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.21.2</title>
+<title>sus.genes — MVP v0.21.3</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script async src="https://tganalytics.xyz/index.js" onload="initTgAnalytics()" type="text/javascript"></script>
 <script>
@@ -424,7 +424,7 @@ function initTgAnalytics(){
 
 <button class="btn-invite" id="btnInvite" onclick="shareInviteLink()">👥 Invite Friend → +100⭐ each</button>
 
-<div class="ver">v0.21.2</div>
+<div class="ver">v0.21.3</div>
 
 </div><!-- /phone-frame -->
 
@@ -1142,7 +1142,8 @@ function getCloudStorage(){
   if(_cs) return _cs;
   try {
     const tg = window.Telegram && Telegram.WebApp;
-    if(tg && tg.CloudStorage) { _cs = tg.CloudStorage; return _cs; }
+    // Only use CloudStorage if actually inside Telegram (has real user)
+    if(tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) { _cs = tg.CloudStorage; return _cs; }
   } catch(e){}
   return null;
 }
