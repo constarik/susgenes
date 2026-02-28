@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.17.7</title>
+<title>sus.genes — MVP v0.18.0</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
@@ -198,6 +198,26 @@
   .modal-box .payout-table th { background: rgba(255,255,255,0.05); color: #aaa; }
 
   /* No-stars warning */
+  .user-bar {
+    display: flex; align-items: center; gap: 6px;
+    width: 100%; padding: 2px 4px; margin-bottom: 2px;
+  }
+  .user-ava {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid #555; object-fit: cover;
+    background: #2a2a35;
+  }
+  .user-ava-placeholder {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #2a2a35; border: 1.5px solid #555;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #666;
+  }
+  .user-name { font-size: 11px; color: #888; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-net { font-size: 11px; font-weight: 700; }
+  .user-net.pos { color: #4ade80; }
+  .user-net.neg { color: #f87171; }
+  .user-net.zero { color: #666; }
   .no-stars { text-align: center; color: #ff6644; font-size: 10px; padding: 4px; font-weight: 700; }
   .btn-share {
     margin-top: 6px; padding: 4px 16px; border-radius: 12px; border: 1px solid #ffcc00;
@@ -259,6 +279,13 @@
     <div class="bal">⭐<span id="balance">100</span></div>
   </div>
 </div>
+
+<div class="user-bar" id="userBar">
+  <div class="user-ava-placeholder" id="userAvaWrap">👤</div>
+  <span class="user-name" id="userName">Guest</span>
+  <span class="user-net zero" id="userNet">net 0</span>
+</div>
+
 <div class="tick-bar">
   <span>Tick <span class="num" id="tickNum">0</span>/20</span>
   <span class="mult" id="multDisp">×6.00</span>
@@ -315,7 +342,7 @@
   <button class="btn-share" id="btnShare" style="display:none">📤 Share</button>
 </div>
 
-<div class="ver">v0.17.7</div>
+<div class="ver">v0.18.0</div>
 
 </div><!-- /phone-frame -->
 
@@ -711,6 +738,7 @@ function draw(){
 function updateUI(){
   document.getElementById('tickNum').textContent=tick;
   document.getElementById('balance').textContent=balance;
+  updateNetDisplay();
   document.getElementById('roundDisp').textContent='R'+roundNum;
   const m=currentMult(),md=document.getElementById('multDisp');
   md.textContent=`×${m.toFixed(2)}`;
@@ -996,9 +1024,36 @@ function newRound(){
 }
 
 // ============ INIT ============
+function initTelegramUser(){
+  try {
+    const tg = window.Telegram && Telegram.WebApp;
+    if(tg && tg.initDataUnsafe && tg.initDataUnsafe.user){
+      const u = tg.initDataUnsafe.user;
+      document.getElementById('userName').textContent = u.first_name || 'Player';
+      if(u.photo_url){
+        const wrap = document.getElementById('userAvaWrap');
+        const img = document.createElement('img');
+        img.className = 'user-ava';
+        img.src = u.photo_url;
+        img.onerror = ()=>{ img.remove(); };
+        wrap.replaceWith(img);
+      }
+    }
+  } catch(e){}
+}
+
+function updateNetDisplay(){
+  const net = balance - 100;
+  const el = document.getElementById('userNet');
+  if(net > 0){ el.textContent = 'net +' + net; el.className = 'user-net pos'; }
+  else if(net < 0){ el.textContent = 'net ' + net; el.className = 'user-net neg'; }
+  else { el.textContent = 'net 0'; el.className = 'user-net zero'; }
+}
+
 function initGame(){
-  roundNum=0; // newRound increments to 1
+  roundNum=0;
   balance=100;
+  initTelegramUser();
   newRound();
 }
 
