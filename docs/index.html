@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.17.2</title>
+<title>sus.genes — MVP v0.17.3</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
@@ -315,7 +315,7 @@
   <button class="btn-share" id="btnShare" style="display:none">📤 Share</button>
 </div>
 
-<div class="ver">v0.17.2</div>
+<div class="ver">v0.17.3</div>
 
 </div><!-- /phone-frame -->
 
@@ -915,7 +915,7 @@ function doReveal(){
     if(window.Telegram&&Telegram.WebApp){
       Telegram.WebApp.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(msg));
     } else if(navigator.share){
-      navigator.share({text:msg+'\n'+url}).catch(()=>{});
+      navigator.share({text:msg,url:url}).catch(()=>{});
     } else {
       navigator.clipboard.writeText(msg+'\n'+url).then(()=>{shareBtn.textContent='📋 Copied!';setTimeout(()=>{shareBtn.textContent='📤 Share';},1500);});
     }
