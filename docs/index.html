@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.19.0</title>
+<title>sus.genes — MVP v0.19.1</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script async src="https://tganalytics.xyz/index.js" onload="initTgAnalytics()" type="text/javascript"></script>
 <script>
@@ -1130,7 +1130,7 @@ function getCloudStorage(){
 }
 
 function saveState(){
-  const data = JSON.stringify({ bal: balance, rn: roundNum, tw: totalWon||0, tl: totalLost||0, ts: Date.now() });
+  const data = JSON.stringify({ bal: balance, rn: roundNum, tw: totalWon||0, tl: totalLost||0, lr: lastResetDay||'', ts: Date.now() });
   const cs = getCloudStorage();
   if(cs){ cs.setItem(SAVE_KEY, data); }
   else { try { localStorage.setItem(SAVE_KEY, data); } catch(e){} }
@@ -1160,6 +1160,7 @@ function loadLocalStorage(callback){
 }
 
 var totalWon = 0, totalLost = 0;
+var lastResetDay = '';
 
 // --- Shop / Payments ---
 const BACKEND_URL = 'https://susgenes-bot.onrender.com';
@@ -1210,10 +1211,21 @@ function initGame(){
       roundNum = state.rn || 0;
       totalWon = state.tw || 0;
       totalLost = state.tl || 0;
-      if(balance <= 0) balance = 100; // reset if broke
+      var lastReset = state.lr || '';
+      lastResetDay = lastReset;
+      var today = new Date().toISOString().slice(0,10);
+      if(balance <= 0){
+        if(lastReset !== today){
+          balance = 100;
+          lastResetDay = today;
+          saveState();
+        }
+        // else: no free reset today, must buy
+      }
     } else {
       balance = 100;
       roundNum = 0;
+      lastResetDay = new Date().toISOString().slice(0,10);
     }
     newRound();
   });
