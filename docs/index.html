@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.17.5</title>
+<title>sus.genes — MVP v0.17.6</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
@@ -315,7 +315,7 @@
   <button class="btn-share" id="btnShare" style="display:none">📤 Share</button>
 </div>
 
-<div class="ver">v0.17.5</div>
+<div class="ver">v0.17.6</div>
 
 </div><!-- /phone-frame -->
 
@@ -910,12 +910,12 @@ function doReveal(){
   shareBtn.onclick=function(){
     const net=balance-100;
     const emoji=realChange>=0?'🎯':'💀';
-    const msg=`${emoji} sus.genes R${roundNum}: ${realChange>=0?'Won':'Lost'} ⭐${Math.abs(realChange)} | Balance ⭐${balance} (net ${net>=0?'+':''}${net})\n🧬 Can you read their genes?\nhttps://t.me/susgenes_bot`;
-    const shareUrl='https://t.me/share/url?text='+encodeURIComponent(msg);
-    if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.openTelegramLink){
-      try{Telegram.WebApp.openTelegramLink(shareUrl);}catch(e){window.open(shareUrl,'_blank');}
+    const msg=`${emoji} sus.genes R${roundNum}: ${realChange>=0?'Won':'Lost'} ⭐${Math.abs(realChange)} | Balance ⭐${balance} (net ${net>=0?'+':''}${net})\n🧬 Can you read their genes?`;
+    const url='https://t.me/susgenes_bot';
+    if(window.Telegram&&Telegram.WebApp){
+      Telegram.WebApp.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(msg));
     } else {
-      window.open(shareUrl,'_blank');
+      window.open('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(msg),'_blank');
     }
   };
   updateUI();draw();
