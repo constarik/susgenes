@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.18.2</title>
+<title>sus.genes — MVP v0.19.0</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script async src="https://tganalytics.xyz/index.js" onload="initTgAnalytics()" type="text/javascript"></script>
 <script>
@@ -237,6 +237,38 @@ function initTgAnalytics(){
   }
   .btn-share:active { background: rgba(255,204,0,0.3); }
   .ver { font-size: 9px; color: #444; text-align: center; margin-top: 6px; letter-spacing: 1px; }
+
+  /* Shop */
+  .btn-shop {
+    width: 22px; height: 22px; border-radius: 6px; border: 1px solid #ffcc00;
+    background: rgba(255,204,0,0.1); color: #ffcc00; font-size: 12px;
+    cursor: pointer; font-family: inherit; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0; line-height: 1;
+  }
+  .btn-shop:active { background: rgba(255,204,0,0.3); }
+  .shop-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; justify-content: center; align-items: center; }
+  .shop-modal.show { display: flex; }
+  .shop-box {
+    width: 300px; max-width: 90vw; background: #1a1a2e; border: 2px solid #ffcc00;
+    border-radius: 16px; padding: 20px; text-align: center;
+  }
+  .shop-box h2 { font-size: 16px; color: #ffcc00; margin-bottom: 12px; }
+  .shop-pack {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px; margin: 6px 0; border-radius: 10px;
+    border: 1px solid #333; background: rgba(255,255,255,0.03);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .shop-pack:hover { border-color: #ffcc00; background: rgba(255,204,0,0.05); }
+  .shop-pack .sp-credits { font-size: 14px; font-weight: 800; color: #ffcc00; }
+  .shop-pack .sp-bonus { font-size: 9px; color: #4ade80; font-weight: 700; }
+  .shop-pack .sp-price { font-size: 13px; font-weight: 700; color: #e0e0e0; }
+  .shop-close {
+    margin-top: 12px; padding: 6px 20px; border-radius: 8px; border: 1px solid #555;
+    background: rgba(255,255,255,0.05); color: #888; font-family: inherit;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -281,6 +313,26 @@ function initTgAnalytics(){
 </div>
 
 <div class="phone-frame" id="phoneFrame">
+
+<!-- Shop modal -->
+<div class="shop-modal" id="shopModal">
+<div class="shop-box">
+  <h2>🛒 Buy Credits</h2>
+  <div class="shop-pack" onclick="buyPack('pack500')">
+    <div><span class="sp-credits">500⭐</span></div>
+    <div class="sp-price">50 Stars</div>
+  </div>
+  <div class="shop-pack" onclick="buyPack('pack1500')">
+    <div><span class="sp-credits">1500⭐</span> <span class="sp-bonus">+50%</span></div>
+    <div class="sp-price">100 Stars</div>
+  </div>
+  <div class="shop-pack" onclick="buyPack('pack5000')">
+    <div><span class="sp-credits">5000⭐</span> <span class="sp-bonus">×2 value</span></div>
+    <div class="sp-price">250 Stars</div>
+  </div>
+  <button class="shop-close" onclick="closeShop()">Close</button>
+</div>
+</div>
 <div class="phone-notch"></div>
 
 <div class="hdr">
@@ -288,6 +340,7 @@ function initTgAnalytics(){
   <div class="hdr-right">
     <span class="round-num" id="roundDisp">R1</span>
     <div class="bal">⭐<span id="balance">100</span></div>
+    <button class="btn-shop" onclick="openShop()" title="Buy credits">+</button>
   </div>
 </div>
 
@@ -1107,6 +1160,47 @@ function loadLocalStorage(callback){
 }
 
 var totalWon = 0, totalLost = 0;
+
+// --- Shop / Payments ---
+const BACKEND_URL = 'https://susgenes-bot.onrender.com';
+const PACK_CREDITS = { pack500: 500, pack1500: 1500, pack5000: 5000 };
+
+function openShop() { document.getElementById('shopModal').classList.add('show'); }
+function closeShop() { document.getElementById('shopModal').classList.remove('show'); }
+
+async function buyPack(packId) {
+  const tg = window.Telegram && Telegram.WebApp;
+  const userId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 0;
+  
+  try {
+    const resp = await fetch(BACKEND_URL + '/create-invoice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, packId })
+    });
+    const data = await resp.json();
+    if (!data.invoiceLink) { alert('Error creating invoice'); return; }
+    
+    if (tg && tg.openInvoice) {
+      tg.openInvoice(data.invoiceLink, function(status) {
+        if (status === 'paid') {
+          const credits = PACK_CREDITS[packId] || 0;
+          balance += credits;
+          document.getElementById('balance').textContent = balance;
+          updateNetDisplay();
+          saveState();
+          closeShop();
+        }
+      });
+    } else {
+      // Fallback for browser testing
+      window.open(data.invoiceLink, '_blank');
+    }
+  } catch(e) {
+    console.error('buyPack error:', e);
+    alert('Payment error. Try again.');
+  }
+}
 
 function initGame(){
   initTelegramUser();
