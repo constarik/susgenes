@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.20.0</title>
+<title>sus.genes — MVP v0.21.0</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script async src="https://tganalytics.xyz/index.js" onload="initTgAnalytics()" type="text/javascript"></script>
 <script>
@@ -236,7 +236,23 @@ function initTgAnalytics(){
     font-weight: 800; cursor: pointer; letter-spacing: 0.5px;
   }
   .btn-share:active { background: rgba(255,204,0,0.3); }
-  .ver { font-size: 9px; color: #444; text-align: center; margin-top: 6px; letter-spacing: 1px; }
+  .btn-invite {
+    margin-top: 6px; padding: 6px 20px; border-radius: 12px; border: 1px solid #00ff88;
+    background: rgba(0,255,136,0.15); color: #00ff88; font-family: inherit; font-size: 12px;
+    font-weight: 800; cursor: pointer; letter-spacing: 0.5px;
+  }
+  .btn-invite:active { background: rgba(0,255,136,0.3); }
+  .ref-banner {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: linear-gradient(135deg, #00ff88, #00cc66);
+    color: #000; font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 800; text-align: center;
+    padding: 14px 20px; z-index: 9999;
+    animation: refSlide 0.4s ease-out;
+  }
+  .ref-banner .sub { font-size: 11px; font-weight: 600; margin-top: 4px; opacity: 0.7; }
+  @keyframes refSlide { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+  .ver { font-size: 11px; color: #888; text-align: center; margin-top: 6px; letter-spacing: 1px; font-weight: 600; }
 
   /* Shop */
   .btn-shop {
@@ -406,7 +422,9 @@ function initTgAnalytics(){
   <button class="btn-share" id="btnShare" style="display:none">📤 Share</button>
 </div>
 
-<div class="ver">v0.18.1</div>
+<button class="btn-invite" id="btnInvite" onclick="shareInviteLink()">👥 Invite Friend → +100⭐ each</button>
+
+<div class="ver">v0.21.0</div>
 
 </div><!-- /phone-frame -->
 
@@ -1162,6 +1180,54 @@ function loadLocalStorage(callback){
 var totalWon = 0, totalLost = 0;
 var lastResetDay = '';
 
+// --- Referral System ---
+function shareInviteLink(){
+  const tg = window.Telegram && Telegram.WebApp;
+  const userId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 0;
+  const link = 'https://t.me/susgenes_bot?start=ref_' + userId;
+  const msg = '🧬 Join sus.genes — Bayesian Betting Game! Observe entities, deduce genotypes, place bets. You get +100⭐ bonus!';
+  if(tg){
+    Telegram.WebApp.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(msg));
+  } else {
+    window.open('https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(msg),'_blank');
+  }
+}
+
+async function checkReferralBonus(){
+  const tg = window.Telegram && Telegram.WebApp;
+  const userId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 0;
+  if(!userId) return;
+  try {
+    const resp = await fetch(BACKEND_URL + '/referral-bonus?userId=' + userId);
+    const data = await resp.json();
+    if(data.bonus > 0){
+      await fetch(BACKEND_URL + '/claim-referral', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+      balance += data.bonus;
+      document.getElementById('balance').textContent = balance;
+      updateNetDisplay();
+      saveState();
+      showReferralBanner(data.bonus, data.type, data.count||0);
+    }
+  } catch(e){ console.error('referral check:', e); }
+}
+
+function showReferralBanner(bonus, type, count){
+  const div = document.createElement('div');
+  div.className = 'ref-banner';
+  let msg = '🎉 +' + bonus + '⭐ Referral Bonus!';
+  let sub = '';
+  if(type==='referee') sub = 'Welcome gift from your friend';
+  else if(type==='referrer') sub = count + ' friend' + (count>1?'s':'') + ' joined via your link';
+  else sub = 'Welcome gift + friends bonus';
+  div.innerHTML = msg + '<div class="sub">' + sub + '</div>';
+  document.body.appendChild(div);
+  setTimeout(()=>{ div.style.transition='opacity 0.5s'; div.style.opacity='0'; setTimeout(()=>div.remove(), 600); }, 3500);
+}
+
 // --- Shop / Payments ---
 const BACKEND_URL = 'https://susgenes-bot.onrender.com';
 const PACK_CREDITS = { pack500: 500, pack1500: 1500, pack5000: 5000 };
@@ -1228,6 +1294,7 @@ function initGame(){
       lastResetDay = new Date().toISOString().slice(0,10);
     }
     newRound();
+    checkReferralBonus();
   });
 }
 
