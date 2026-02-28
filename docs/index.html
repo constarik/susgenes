@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.16.5</title>
+<title>sus.genes — MVP v0.16.6</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -307,7 +307,7 @@
   <div class="detail" id="winDetail"></div>
 </div>
 
-<div class="ver">v0.16.5</div>
+<div class="ver">v0.16.6</div>
 
 </div><!-- /phone-frame -->
 
@@ -486,7 +486,7 @@ function rng(){return Math.random();}
 function currentMult(){return Math.max(1.25,6.0-tick*0.25);}
 
 function createEntity(id,x,y){
-  const geno=[rng()<0.5?1:0,rng()<0.5?1:0,rng()<0.5?1:0];
+  const geno=[rng()<0.7?1:0,rng()<0.7?1:0,rng()<0.7?1:0];
   return{id,x,y,px:x,py:y,geno,color:ENT_COLORS[id],emoji:ENT_EMOJIS[id],name:ENT_NAMES[id],
     obs:[0,0,0],chances:[0,0,0]};
 }
