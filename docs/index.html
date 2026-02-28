@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.21.0</title>
+<title>sus.genes — MVP v0.21.1</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script async src="https://tganalytics.xyz/index.js" onload="initTgAnalytics()" type="text/javascript"></script>
 <script>
@@ -424,7 +424,7 @@ function initTgAnalytics(){
 
 <button class="btn-invite" id="btnInvite" onclick="shareInviteLink()">👥 Invite Friend → +100⭐ each</button>
 
-<div class="ver">v0.21.0</div>
+<div class="ver">v0.21.1</div>
 
 </div><!-- /phone-frame -->
 
@@ -1155,17 +1155,25 @@ function saveState(){
 }
 
 function loadState(callback){
+  let called = false;
+  function once(data){ if(called) return; called = true; callback(data); }
   const cs = getCloudStorage();
   if(cs){
+    // Timeout: if CloudStorage doesn't respond in 2s, fallback
+    const timer = setTimeout(() => {
+      console.warn('CloudStorage timeout, falling back');
+      once(null);
+    }, 2000);
     cs.getItem(SAVE_KEY, (err, val) => {
+      clearTimeout(timer);
       if(!err && val){
-        try { callback(JSON.parse(val)); return; } catch(e){}
+        try { once(JSON.parse(val)); return; } catch(e){}
       }
       // fallback localStorage
-      loadLocalStorage(callback);
+      loadLocalStorage(once);
     });
   } else {
-    loadLocalStorage(callback);
+    loadLocalStorage(once);
   }
 }
 
