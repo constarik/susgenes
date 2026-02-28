@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.17.0</title>
+<title>sus.genes — MVP v0.17.1</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -198,6 +199,12 @@
 
   /* No-stars warning */
   .no-stars { text-align: center; color: #ff6644; font-size: 10px; padding: 4px; font-weight: 700; }
+  .btn-share {
+    margin-top: 6px; padding: 4px 16px; border-radius: 12px; border: 1px solid #ffcc00;
+    background: rgba(255,204,0,0.15); color: #ffcc00; font-family: inherit; font-size: 11px;
+    font-weight: 800; cursor: pointer; letter-spacing: 0.5px;
+  }
+  .btn-share:active { background: rgba(255,204,0,0.3); }
   .ver { font-size: 9px; color: #444; text-align: center; margin-top: 6px; letter-spacing: 1px; }
 </style>
 </head>
@@ -305,9 +312,10 @@
 <div class="win-banner" id="winBanner">
   <div id="winText"></div>
   <div class="detail" id="winDetail"></div>
+  <button class="btn-share" id="btnShare" style="display:none">📤 Share</button>
 </div>
 
-<div class="ver">v0.17.0</div>
+<div class="ver">v0.17.1</div>
 
 </div><!-- /phone-frame -->
 
@@ -896,6 +904,21 @@ function doReveal(){
   if(bets.length>0){
     if(realChange>=0)SFX.endWin();else SFX.endLose();
   }
+  // Share button
+  const shareBtn=document.getElementById('btnShare');
+  shareBtn.style.display='inline-block';
+  shareBtn.onclick=function(){
+    const net=balance-100;
+    const emoji=realChange>=0?'🎯':'💀';
+    const msg=`${emoji} sus.genes R${roundNum}: ${realChange>=0?'Won':'Lost'} ⭐${Math.abs(realChange)} this round | Balance ⭐${balance} (net ${net>=0?'+':''}${net})\n🧬 Play: https://t.me/susgenes_bot`;
+    if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.switchInlineQuery){
+      Telegram.WebApp.switchInlineQuery(msg,'users');
+    } else if(navigator.share){
+      navigator.share({text:msg}).catch(()=>{});
+    } else {
+      navigator.clipboard.writeText(msg).then(()=>{shareBtn.textContent='📋 Copied!';setTimeout(()=>{shareBtn.textContent='📤 Share';},1500);});
+    }
+  };
   updateUI();draw();
 }
 
@@ -962,6 +985,7 @@ function newRound(){
   tick=0;revealed=false;bets=[];selectedEnt=null;betGuess=[null,null,null];
   food=[];effects=[];entities=[];lastTickTime=performance.now();
   document.getElementById('winBanner').className='win-banner';
+  document.getElementById('btnShare').style.display='none';
   document.getElementById('noStarsMsg').style.display='none';
   const pos=[];
   for(let x=0;x<GRID;x++)for(let y=0;y<GRID;y++)pos.push({x,y});
