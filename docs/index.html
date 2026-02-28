@@ -3,8 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.18.1</title>
+<title>sus.genes — MVP v0.18.2</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script async src="https://tganalytics.xyz/index.js" onload="initTgAnalytics()" type="text/javascript"></script>
+<script>
+function initTgAnalytics(){
+  if(window.telegramAnalytics){
+    window.telegramAnalytics.init({
+      token:'eyJhcHBfbmFtZSI6InN1c19nZW5lcyIsImFwcF91cmwiOiJodHRwczovL3QubWUvc3VzZ2VuZXNfYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vY29uc3RhcmlrLmdpdGh1Yi5pby9zdXNnZW5lcy8ifQ==!NpWUpKzoml2ZMg94ebvPmaQxwFE3UQ07glal+AuBCBU=',
+      appName:'sus_genes'
+    });
+  }
+}
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
