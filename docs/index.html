@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.16.8</title>
+<title>sus.genes — MVP v0.16.9</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -307,7 +307,7 @@
   <div class="detail" id="winDetail"></div>
 </div>
 
-<div class="ver">v0.16.8</div>
+<div class="ver">v0.16.9</div>
 
 </div><!-- /phone-frame -->
 
@@ -929,6 +929,7 @@ document.getElementById('btnAuto').onclick=function(){
   },TICK_DURATION);this.textContent='⏸ Stop';this.classList.add('active');}
 };
 document.getElementById('btnNew').onclick=function(){
+  if(balance<=0){alert('Game over! No ⭐ left.');return;}
   newRound();
 };
 document.getElementById('btnTheme').onclick=function(){
