@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.18.0</title>
+<title>sus.genes — MVP v0.18.1</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
@@ -342,7 +342,7 @@
   <button class="btn-share" id="btnShare" style="display:none">📤 Share</button>
 </div>
 
-<div class="ver">v0.18.0</div>
+<div class="ver">v0.18.1</div>
 
 </div><!-- /phone-frame -->
 
@@ -888,6 +888,7 @@ function placeBet(){
   selectedEnt=null;betGuess=[null,null,null];
   SFX.bet();
   showBetPanel();updateUI();draw();
+  saveState();
 }
 
 // ============ REVEAL ============
@@ -947,6 +948,7 @@ function doReveal(){
     }
   };
   updateUI();draw();
+  saveState();
 }
 
 // ============ CANVAS CLICK ============
@@ -1050,11 +1052,66 @@ function updateNetDisplay(){
   else { el.textContent = 'net 0'; el.className = 'user-net zero'; }
 }
 
+// ============ CLOUD STORAGE ============
+const SAVE_KEY = 'sg_state';
+let _cs = null; // CloudStorage ref
+
+function getCloudStorage(){
+  if(_cs) return _cs;
+  try {
+    const tg = window.Telegram && Telegram.WebApp;
+    if(tg && tg.CloudStorage) { _cs = tg.CloudStorage; return _cs; }
+  } catch(e){}
+  return null;
+}
+
+function saveState(){
+  const data = JSON.stringify({ bal: balance, rn: roundNum, tw: totalWon||0, tl: totalLost||0, ts: Date.now() });
+  const cs = getCloudStorage();
+  if(cs){ cs.setItem(SAVE_KEY, data); }
+  else { try { localStorage.setItem(SAVE_KEY, data); } catch(e){} }
+}
+
+function loadState(callback){
+  const cs = getCloudStorage();
+  if(cs){
+    cs.getItem(SAVE_KEY, (err, val) => {
+      if(!err && val){
+        try { callback(JSON.parse(val)); return; } catch(e){}
+      }
+      // fallback localStorage
+      loadLocalStorage(callback);
+    });
+  } else {
+    loadLocalStorage(callback);
+  }
+}
+
+function loadLocalStorage(callback){
+  try {
+    const v = localStorage.getItem(SAVE_KEY);
+    if(v){ callback(JSON.parse(v)); return; }
+  } catch(e){}
+  callback(null);
+}
+
+var totalWon = 0, totalLost = 0;
+
 function initGame(){
-  roundNum=0;
-  balance=100;
   initTelegramUser();
-  newRound();
+  loadState(function(state){
+    if(state && state.bal !== undefined){
+      balance = state.bal;
+      roundNum = state.rn || 0;
+      totalWon = state.tw || 0;
+      totalLost = state.tl || 0;
+      if(balance <= 0) balance = 100; // reset if broke
+    } else {
+      balance = 100;
+      roundNum = 0;
+    }
+    newRound();
+  });
 }
 
 function renderLoop(){draw();requestAnimationFrame(renderLoop);}
