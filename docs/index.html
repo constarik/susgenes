@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.16.9</title>
+<title>sus.genes — MVP v0.17.0</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -307,7 +307,7 @@
   <div class="detail" id="winDetail"></div>
 </div>
 
-<div class="ver">v0.16.9</div>
+<div class="ver">v0.17.0</div>
 
 </div><!-- /phone-frame -->
 
@@ -538,6 +538,7 @@ let tickActions={a:0,h:0,g:0,idle:0};
 
 function doTick(){
   if(tick>=MAX_TICKS||revealed)return;
+  if(tick===0)roundNum++;
   tick++;
   for(const e of entities){e.px=e.x;e.py=e.y;}
   lastTickTime=performance.now();
@@ -958,7 +959,6 @@ function newRound(){
   if(autoInterval){clearInterval(autoInterval);autoInterval=null;
     document.getElementById('btnAuto').textContent='▶▶ Auto';
     document.getElementById('btnAuto').classList.remove('active');}
-  roundNum++;
   tick=0;revealed=false;bets=[];selectedEnt=null;betGuess=[null,null,null];
   food=[];effects=[];entities=[];lastTickTime=performance.now();
   document.getElementById('winBanner').className='win-banner';
