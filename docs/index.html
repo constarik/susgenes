@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>sus.genes — MVP v0.16.6</title>
+<title>sus.genes — MVP v0.16.7</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -307,7 +307,7 @@
   <div class="detail" id="winDetail"></div>
 </div>
 
-<div class="ver">v0.16.6</div>
+<div class="ver">v0.16.7</div>
 
 </div><!-- /phone-frame -->
 
@@ -485,8 +485,11 @@ function easeOut(t){return 1-(1-t)*(1-t)*(1-t);}
 function rng(){return Math.random();}
 function currentMult(){return Math.max(1.25,6.0-tick*0.25);}
 
-function createEntity(id,x,y){
-  const geno=[rng()<0.7?1:0,rng()<0.7?1:0,rng()<0.7?1:0];
+// All 8 possible genotypes, shuffled and assigned 1:1
+const ALL_GENOS=[[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]];
+function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+function createEntity(id,x,y,geno){
   return{id,x,y,px:x,py:y,geno,color:ENT_COLORS[id],emoji:ENT_EMOJIS[id],name:ENT_NAMES[id],
     obs:[0,0,0],chances:[0,0,0]};
 }
@@ -963,7 +966,8 @@ function newRound(){
   const pos=[];
   for(let x=0;x<GRID;x++)for(let y=0;y<GRID;y++)pos.push({x,y});
   for(let i=pos.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[pos[i],pos[j]]=[pos[j],pos[i]];}
-  for(let i=0;i<NUM_ENTITIES;i++)entities.push(createEntity(i,pos[i].x,pos[i].y));
+  const genos=shuffleArray([...ALL_GENOS.map(g=>[...g])]);
+  for(let i=0;i<NUM_ENTITIES;i++)entities.push(createEntity(i,pos[i].x,pos[i].y,genos[i]));
   SFX.newRound();
   showBetPanel();updateUI();draw();
 }
